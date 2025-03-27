@@ -4,17 +4,89 @@
 
 {% block content %}
 <div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold text-center mb-6">💳 Enter Payment Details</h2>
+    <h2 class="text-2xl font-bold text-center mb-6">💳 Choose Your Payment Method</h2>
 
-    <p class="mb-4 text-gray-600">Booking for: <strong>{{ booking.property.title }}</strong></p>
-    <p class="mb-6 text-gray-600">Amount: <strong>${{ booking.property.price_per_night }}</strong></p>
+    <p class="mb-4 text-gray-600 text-center">Booking for: <strong>{{ property.title }}</strong></p>
+    <p class="mb-6 text-gray-600 text-center">Amount: <strong>${{ price }}</strong></p>
 
-    <form method="post" class="space-y-4">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg">
-            Confirm Payment
+    <!-- Payment Method Toggle -->
+    <div class="flex justify-center gap-4 mb-6">
+        <div id="credit-card-toggle" class="payment-option border-2 border-blue-500 bg-blue-50 text-blue-700 px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md">
+            💳 Credit Card
+        </div>
+        <div id="stripe-toggle" class="payment-option border-2 border-gray-300 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg cursor-pointer font-semibold shadow">
+            🔐 Pay with Stripe
+        </div>
+    </div>
+
+    <!-- Credit Card Form -->
+    <div id="credit-card-form">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg w-full">
+                Pay with Credit Card
+            </button>
+        </form>
+    </div>
+
+    <!-- Stripe Checkout -->
+    <div id="stripe-checkout" class="hidden">
+        <button id="checkout-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg w-full">
+            💳 Pay with Stripe
         </button>
-    </form>
+    </div>
 </div>
+
+<!-- Stripe & Toggle Script -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe("{{ STRIPE_PUBLISHABLE_KEY }}");
+
+    document.getElementById("checkout-button").addEventListener("click", function () {
+        fetch("{% url 'payments:stripe_checkout_session' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                stripe.redirectToCheckout({ sessionId: data.id });
+            } else {
+                alert("Stripe error: " + data.error);
+            }
+        });
+    });
+
+    // Toggle logic
+    const creditForm = document.getElementById("credit-card-form");
+    const stripeDiv = document.getElementById("stripe-checkout");
+    const creditToggle = document.getElementById("credit-card-toggle");
+    const stripeToggle = document.getElementById("stripe-toggle");
+
+    creditToggle.addEventListener("click", () => {
+        creditForm.classList.remove("hidden");
+        stripeDiv.classList.add("hidden");
+
+        creditToggle.classList.add("border-blue-500", "bg-blue-50", "text-blue-700");
+        creditToggle.classList.remove("border-gray-300", "bg-gray-100", "text-gray-700");
+
+        stripeToggle.classList.add("border-gray-300", "bg-gray-100", "text-gray-700");
+        stripeToggle.classList.remove("border-blue-500", "bg-blue-50", "text-blue-700");
+    });
+
+    stripeToggle.addEventListener("click", () => {
+        creditForm.classList.add("hidden");
+        stripeDiv.classList.remove("hidden");
+
+        stripeToggle.classList.add("border-blue-500", "bg-blue-50", "text-blue-700");
+        stripeToggle.classList.remove("border-gray-300", "bg-gray-100", "text-gray-700");
+
+        creditToggle.classList.add("border-gray-300", "bg-gray-100", "text-gray-700");
+        creditToggle.classList.remove("border-blue-500", "bg-blue-50", "text-blue-700");
+    });
+</script>
 {% endblock %}

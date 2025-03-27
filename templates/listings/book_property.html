@@ -9,18 +9,10 @@
     <form method="post" class="space-y-6">
         {% csrf_token %}
 
-        <div>
-            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date:</label>
-            <input type="text" id="start_date" name="start_date"
-                   class="border border-gray-300 rounded-lg p-2 w-full focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-
-        <div>
-            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date:</label>
-            <input type="text" id="end_date" name="end_date"
-                   class="border border-gray-300 rounded-lg p-2 w-full focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-
+        {{ form.start_date.label_tag }}
+        {{ form.start_date }}
+        {{ form.end_date.label_tag }}
+        {{ form.end_date }}
         <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg">
             Proceed to Payment
         </button>

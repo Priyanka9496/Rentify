@@ -7,3 +7,8 @@ register = template.Library()
 def has_group(user, group_name):
     print(f"Checking group for {user.username}")
     return user.groups.filter(name=group_name).exists()
+
+
+@register.filter(name='add_class')
+def add_class(field, css_class):
+    return field.as_widget(attrs={'class': css_class})

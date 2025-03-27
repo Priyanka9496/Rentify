@@ -76,7 +76,6 @@ def detect_fraud(user, booking):
 def book_property(request, property_id):
     property = get_object_or_404(Property, id=property_id)
 
-    # Fetch booked dates
     bookings = Booking.objects.filter(property=property)
     booked_dates = [
         date.strftime('%Y-%m-%d')
@@ -84,7 +83,6 @@ def book_property(request, property_id):
         for date in (booking.start_date + timedelta(days=i)
                      for i in range((booking.end_date - booking.start_date).days + 1))
     ]
-
     booked_dates_json = json.dumps(booked_dates)
 
     form = BookingForm()
@@ -106,20 +104,18 @@ def book_property(request, property_id):
                 messages.error(request, "This property is already booked for the selected dates.")
                 return redirect('listings:book_property', property_id=property.id)
 
+            # TEMPORARY booking object (not saved)
             booking = form.save(commit=False)
             booking.user = request.user
             booking.property = property
-            booking.save()
 
-            # Run fraud detection logic
+            # Run fraud check
             fraud_reasons = detect_fraud(request.user, booking)
 
             if fraud_reasons:
                 messages.warning(request, f"⚠️ Potential fraud detected: {', '.join(fraud_reasons)}")
-                booking.delete()  # Prevent fraudulent booking from proceeding
                 messages.error(request, f"Booking flagged as fraudulent due to: {', '.join(fraud_reasons)}")
 
-                # Send email notification to admin (for transparency)
                 send_mail(
                     'Fraudulent Booking Attempt Detected',
                     f'User: {request.user.email}\nReasons: {", ".join(fraud_reasons)}',
@@ -128,14 +124,15 @@ def book_property(request, property_id):
                     fail_silently=True,
                 )
                 return redirect('listings:property_list')
-            else:
-                # Redirect to payment if no fraud detected
-                messages.success(request, "Booking successful! Proceed to payment.")
-                return redirect('payments:confirm_payment', booking_id=booking.id)
 
-        else:
-            print("Form Errors:", form.errors)
-            messages.error(request, "Failed to save booking. Check form data.")
+            # ✅ Save booking data temporarily in session
+            request.session['pending_booking'] = {
+                'property_id': str(property.id),
+                'start_date': str(start_date),
+                'end_date': str(end_date),
+            }
+
+            return redirect('payments:confirm_payment')  # No booking.id passed anymore!
 
     return render(request, 'listings/book_property.html', {
         'form': form,
@@ -147,18 +144,14 @@ def book_property(request, property_id):
 @login_required
 def cancel_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    property = booking.property
 
-    booking.delete()
+    if request.method == 'POST':
+        booking.delete()
+        messages.success(request, "Booking cancelled successfully.")
+    else:
+        messages.error(request, "Invalid request method.")
 
-    # Update property availability if no other active bookings exist
-    if not Booking.objects.filter(property=property).exists():
-        property.available = True
-        property.save()
-
-    messages.success(request, "Booking canceled, and property is now available.")
-    return redirect('listings:property_list')
-
+    return redirect('listings:user_bookings')
 
 
 def is_verified_user(user):

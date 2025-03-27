@@ -90,9 +90,9 @@ LOGOUT_REDIRECT_URL = 'accounts:login'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'SVV_db',
-        'USER': 'SVV_user',
-        'PASSWORD': 'password',
+        'NAME': config("DB_NAME"),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -140,9 +140,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # This is where you keep your custom static files (like images, css, js)
+    BASE_DIR / 'staticfiles',  # This is where you keep your custom static files (like images, css, js)
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles_collected'
 CSRF_COOKIE_HTTPONLY = False
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -160,3 +160,6 @@ MESSAGE_TAGS = {
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
+
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")

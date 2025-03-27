@@ -44,13 +44,13 @@ class BookingForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs={
                 'type': 'text',
-                'id': 'id_start_date',
+                'id': 'start_date',
                 'class': 'border border-gray-300 rounded-lg p-2 w-full focus:ring focus:ring-indigo-200',
                 'placeholder': 'Select start date'
             }),
             'end_date': forms.DateInput(attrs={
                 'type': 'text',
-                'id': 'id_end_date',
+                'id': 'end_date',
                 'class': 'border border-gray-300 rounded-lg p-2 w-full focus:ring focus:ring-indigo-200',
                 'placeholder': 'Select end date'
             }),

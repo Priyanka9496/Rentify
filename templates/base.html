@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -171,9 +170,18 @@
         }
     </style>
 </head>
-
+<link href="{% static 'admin/css/styles.css' %}" rel="stylesheet">
 <body class="bg-gray-100">
-
+    {% if messages %}
+        <div class="messages-container">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              <span>{{ message }}</span>
+              <button class="close-btn" onclick="this.parentElement.style.display='none';">✖</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     <!-- Navbar -->
     <header class="bg-indigo-600 text-white py-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
