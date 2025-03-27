@@ -1,4 +1,4 @@
-# Property Listings Application
+# Rentify Property Listings Application
 
 This is a Django-based web application for listing, viewing, and booking properties.
 
@@ -20,7 +20,7 @@ This is a Django-based web application for listing, viewing, and booking propert
 
 1. **Clone the Repository**
 ```bash
-git@github.com:Priyanka9496/UniProjects.git
+git@github.com:Priyanka9496/Rentify.git
 cd repository-name
 ```
 
