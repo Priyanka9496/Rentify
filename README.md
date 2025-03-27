@@ -20,7 +20,7 @@ This is a Django-based web application for listing, viewing, and booking propert
 
 1. **Clone the Repository**
 ```bash
-git@github.com:Priyanka9496/Rentify.git
+https://github.com/Priyanka9496/Rentify.git
 cd repository-name
 ```
 
